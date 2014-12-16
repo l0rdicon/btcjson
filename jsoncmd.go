@@ -2586,16 +2586,6 @@ func (cmd *GetStakingInfoCmd) MarshalJSON() ([]byte, error) {
 	return json.Marshal(raw)
 }
 
-// MarshalJSON returns the JSON encoding of cmd.  Part of the Cmd interface.
-func (cmd *GetStakingInfoCmd) MarshalJSON() ([]byte, error) {
-	// Fill and marshal a RawCmd.
-	raw, err := NewRawCmd(cmd.id, cmd.Method(), []interface{}{})
-	if err != nil {
-		return nil, err
-	}
-	return json.Marshal(raw)
-}
-
 // UnmarshalJSON unmarshals the JSON encoding of cmd into cmd.  Part of
 // the Cmd interface.
 func (cmd *GetStakingInfoCmd) UnmarshalJSON(b []byte) error {
