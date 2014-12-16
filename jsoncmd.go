@@ -2550,6 +2550,77 @@ func (cmd *GetHashesPerSecCmd) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
+// GetStakingInfoCmd is a type handling custom marshaling and
+// unmarshaling of getinfo JSON RPC commands.
+type GetStakingInfoCmd struct {
+	id interface{}
+}
+
+// Enforce that GetInfoCmd satisifies the Cmd interface.
+var _ Cmd = &GetStakingInfoCmd{}
+
+// NewGetInfoCmd creates a new GetInfoCmd.
+func NewGetStakingInfoCmd(id interface{}) (*GetStakingInfoCmd, error) {
+	return &GetStakingInfoCmd{
+		id: id,
+	}, nil
+}
+
+// Id satisfies the Cmd interface by returning the id of the command.
+func (cmd *GetStakingInfoCmd) Id() interface{} {
+	return cmd.id
+}
+
+// Method satisfies the Cmd interface by returning the json method.
+func (cmd *GetStakingInfoCmd) Method() string {
+	return "getstakinginfo"
+}
+
+// MarshalJSON returns the JSON encoding of cmd.  Part of the Cmd interface.
+func (cmd *GetStakingInfoCmd) MarshalJSON() ([]byte, error) {
+	// Fill and marshal a RawCmd.
+	raw, err := NewRawCmd(cmd.id, cmd.Method(), []interface{}{})
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(raw)
+}
+
+// MarshalJSON returns the JSON encoding of cmd.  Part of the Cmd interface.
+func (cmd *GetStakingInfoCmd) MarshalJSON() ([]byte, error) {
+	// Fill and marshal a RawCmd.
+	raw, err := NewRawCmd(cmd.id, cmd.Method(), []interface{}{})
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(raw)
+}
+
+// UnmarshalJSON unmarshals the JSON encoding of cmd into cmd.  Part of
+// the Cmd interface.
+func (cmd *GetStakingInfoCmd) UnmarshalJSON(b []byte) error {
+	// Unmashal into a RawCmd
+	var r RawCmd
+	if err := json.Unmarshal(b, &r); err != nil {
+		return err
+	}
+
+	if len(r.Params) != 0 {
+		return ErrWrongNumberOfParams
+	}
+
+	newCmd, err := NewGetStakingInfoCmd(r.Id)
+	if err != nil {
+		return err
+	}
+
+	*cmd = *newCmd
+	return nil
+}
+
+
+
+
 // GetInfoCmd is a type handling custom marshaling and
 // unmarshaling of getinfo JSON RPC commands.
 type GetInfoCmd struct {

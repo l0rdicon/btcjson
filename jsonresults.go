@@ -299,17 +299,22 @@ type GetWorkResult struct {
 	Target   string `json:"target"`
 }
 
-// InfoResult contains the data returned by the getinfo command.
 type InfoResult struct {
-	Version         int32   `json:"version"`
+	Version         string  `json:"version"`
 	ProtocolVersion int32   `json:"protocolversion"`
 	WalletVersion   int32   `json:"walletversion,omitempty"`
 	Balance         float64 `json:"balance,omitempty"`
+	NewMint			float64 `json:"newmint,omitempty"`
+	Stake			float64 `json:"stake,omitempty"`
 	Blocks          int32   `json:"blocks"`
 	TimeOffset      int64   `json:"timeoffset"`
+	MoneySupply     float64 `json:"moneysupply,omitempty"`
+	DigSupply     	float64 `json:"digsupply,omitempty"`
+	StakeSupply     float64 `json:"stakesupply,omitempty"`
+	ActiveSupply    float64 `json:"activesupply,omitempty"`
 	Connections     int32   `json:"connections"`
 	Proxy           string  `json:"proxy"`
-	Difficulty      float64 `json:"difficulty"`
+	Difficulty   Difficulty
 	TestNet         bool    `json:"testnet"`
 	KeypoolOldest   int64   `json:"keypoololdest,omitempty"`
 	KeypoolSize     int32   `json:"keypoolsize,omitempty"`
@@ -317,6 +322,26 @@ type InfoResult struct {
 	PaytxFee        float64 `json:"paytxfee,omitempty"`
 	RelayFee        float64 `json:"relayfee"`
 	Errors          string  `json:"errors"`
+}
+
+// InfoResultStaking contains the data returned by the getstakinginfo command.
+type InfoResultStaking struct {
+	Enabled          bool    `json:"enabled"`
+	Staking          bool    `json:"enabled"`
+	Errors           string  `json:"errors"`
+	CurrentBlockSize int32   `json:"currentblocksize"`
+	CurrentBlockTx   int32   `json:"currentblocktx"`
+	PooledTx 		 int32   `json:"pooledtx"`
+	Difficulty 		 float64 `json:"difficulty"`
+	SearchInterval	 int32   `json:"search-interval"`
+	Weight 		 	 float64 `json:"weight"`
+	NetStakeWeight 	 float64 `json:"netstakeweight"`
+	ExpectedTime 	 int32   `json:"expectedtime"`
+}
+
+
+type Difficulty struct {
+	ProofOfStake     float64 `json:"proof-of-stake"`
 }
 
 // ListTransactionsResult models the data from the listtransactions command.
