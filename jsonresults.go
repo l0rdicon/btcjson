@@ -20,12 +20,23 @@ type BlockResult struct {
 	Height        int64         `json:"height"`
 	Version       int32         `json:"version"`
 	MerkleRoot    string        `json:"merkleroot"`
+	Mint 		  float64       `json:"mint"`
+	MoneySupply   float64       `json:"moneysupply"`
+	DigSupply     float64       `json:"digsupply"`
+	StakeSupply   float64       `json:"stakesupply"`
+	ActiveSupply  float64       `json:"activesupply"`
 	Tx            []string      `json:"tx,omitempty"`
 	RawTx         []TxRawResult `json:"rawtx,omitempty"`
 	Time          int64         `json:"time"`
 	Nonce         uint32        `json:"nonce"`
 	Bits          string        `json:"bits"`
 	Difficulty    float64       `json:"difficulty"`
+	BlockTrust    string 		`json:"blocktrust"`
+	ChainTrust    string 		`json:"chaintrust"`
+	Flags 		  string 		`json:"flags"`
+	ProofHash     string 		`json:"proofhash"`
+	EntropyBit    int 			`json:"entropybit"`
+	Modifier      string 		`json:"modifier"`
 	PreviousHash  string        `json:"previousblockhash"`
 	NextHash      string        `json:"nextblockhash"`
 }
@@ -184,7 +195,7 @@ type GetTransactionResult struct {
 	BlockIndex      int64                         `json:"blockindex"`
 	BlockTime       int64                         `json:"blocktime"`
 	TxID            string                        `json:"txid"`
-	WalletConflicts []string                      `json:"walletconflicts"`
+	WalletConflicts string                        `json:"walletconflicts"`
 	Time            int64                         `json:"time"`
 	TimeReceived    int64                         `json:"timereceived"`
 	Details         []GetTransactionDetailsResult `json:"details"`
