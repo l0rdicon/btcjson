@@ -322,6 +322,9 @@ func ParseMarshaledCmd(b []byte) (Cmd, error) {
 	case "validateaddress":
 		cmd = new(ValidateAddressCmd)
 
+	case "validateoutputs":
+		cmd = new(ValidateOutputsCmd)
+
 	case "verifychain":
 		cmd = new(VerifyChainCmd)
 
@@ -754,11 +757,85 @@ func (cmd *CreateMultisigCmd) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
+
+
 // TransactionInput represents the inputs to a transaction. Specifically a
 // transactionsha and output number pair.
 type TransactionInput struct {
 	Txid string `json:"txid"`
 	Vout uint32 `json:"vout"`
+}
+
+// ValidateOutputsCmd is a type handling custom marshaling and
+// unmarshaling of createrawtransaction JSON RPC commands.
+type ValidateOutputsCmd struct {
+	id      interface{}
+	Inputs  []TransactionInput
+}
+
+// Enforce that ValidateOutputsCmd satisifies the Cmd interface.
+var _ Cmd = &ValidateOutputsCmd{}
+
+
+// NewValidateOutputsCmd creates a new ValidateOutputsCmd.
+func NewValidateOutputsCmd(id interface{}, inputs []TransactionInput) (*ValidateOutputsCmd, error) {
+	return &ValidateOutputsCmd{
+		id:      id,
+		Inputs:  inputs,
+	}, nil
+}
+
+
+// Id satisfies the Cmd interface by returning the id of the command.
+func (cmd *ValidateOutputsCmd) Id() interface{} {
+	return cmd.id
+}
+
+// Method satisfies the Cmd interface by returning the json method.
+func (cmd *ValidateOutputsCmd) Method() string {
+	return "validateouputs"
+}
+
+// MarshalJSON returns the JSON encoding of cmd.  Part of the Cmd interface.
+func (cmd *ValidateOutputsCmd) MarshalJSON() ([]byte, error) {
+	params := []interface{}{
+		cmd.Inputs,
+	}
+
+	// Fill and marshal a RawCmd.
+	raw, err := NewRawCmd(cmd.id, cmd.Method(), params)
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(raw)
+}
+
+// UnmarshalJSON unmarshals the JSON encoding of cmd into cmd.  Part of
+// the Cmd interface.
+func (cmd *ValidateOutputsCmd) UnmarshalJSON(b []byte) error {
+	// Unmashal into a RawCmd
+	var r RawCmd
+	if err := json.Unmarshal(b, &r); err != nil {
+		return err
+	}
+
+	if len(r.Params) != 1 {
+		return ErrWrongNumberOfParams
+	}
+
+	var inputs []TransactionInput
+	if err := json.Unmarshal(r.Params[0], &inputs); err != nil {
+		return fmt.Errorf("parameter 'inputs' must be a JSON array "+
+			"of transaction input JSON objects: %v", err)
+	}
+
+	newCmd, err := NewValidateOutputsCmd(r.Id, inputs)
+	if err != nil {
+		return err
+	}
+
+	*cmd = *newCmd
+	return nil
 }
 
 // CreateRawTransactionCmd is a type handling custom marshaling and
@@ -852,6 +929,12 @@ func (cmd *CreateRawTransactionCmd) UnmarshalJSON(b []byte) error {
 	*cmd = *newCmd
 	return nil
 }
+
+
+
+
+
+
 
 // DebugLevelCmd is a type handling custom marshaling and unmarshaling of
 // debuglevel JSON RPC commands.  This command is not a standard Bitcoin

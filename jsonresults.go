@@ -41,6 +41,17 @@ type BlockResult struct {
 	NextHash      string        `json:"nextblockhash"`
 }
 
+type ValidateOutputs struct {
+    TxId      string `json:"txid"`
+    Vout      string `json:"vout"`
+    Amount      string `json:"amount"`
+    Address      string `json:"address"`
+    Height      string `json:"height"`
+    Confirmations      string `json:"confirmations"`
+    Status     string `json:"status"`
+    ScriptPubKey string `json:"scriptPubKey"`
+}
+
 // CreateMultiSigResult models the data returned from the createmultisig command.
 type CreateMultiSigResult struct {
 	Address      string `json:"address"`
@@ -677,6 +688,12 @@ func ReadResultCmd(cmd string, message []byte) (Reply, error) {
 		if err == nil {
 			result.Result = res
 		}
+	case "validateoutputs":
+		var res []ValidateOutputs
+		err = json.Unmarshal(objmap["result"], &res)
+		if err == nil {
+			result.Result = res
+		}
 	case "signrawtransaction":
 		var res *SignRawTransactionResult
 		err = json.Unmarshal(objmap["result"], &res)
@@ -722,6 +739,7 @@ func ReadResultCmd(cmd string, message []byte) (Reply, error) {
 		if err == nil {
 			result.Result = res
 		}
+
 	// For commands that return a single item (or no items), we get it with
 	// the correct concrete type for free (but treat them separately
 	// for clarity).
