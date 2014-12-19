@@ -793,7 +793,7 @@ func (cmd *ValidateOutputsCmd) Id() interface{} {
 
 // Method satisfies the Cmd interface by returning the json method.
 func (cmd *ValidateOutputsCmd) Method() string {
-	return "validateouputs"
+	return "validateoutputs"
 }
 
 // MarshalJSON returns the JSON encoding of cmd.  Part of the Cmd interface.
