@@ -43,11 +43,11 @@ type BlockResult struct {
 
 type ValidateOutputs struct {
     TxId      string `json:"txid"`
-    Vout      string `json:"vout"`
-    Amount      string `json:"amount"`
+    Vout      uint32 `json:"vout"`
+    Amount      float64 `json:"amount"`
     Address      string `json:"address"`
-    Height      string `json:"height"`
-    Confirmations      string `json:"confirmations"`
+    Height      int64 `json:"height"`
+    Confirmations      int `json:"confirmations"`
     Status     string `json:"status"`
     ScriptPubKey string `json:"scriptPubKey"`
 }
