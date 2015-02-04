@@ -163,6 +163,9 @@ func ParseMarshaledCmd(b []byte) (Cmd, error) {
 	case "getblock":
 		cmd = new(GetBlockCmd)
 
+	case "getblockbynumber":
+		cmd = new(GetBlockByNumberCmd)
+
 	case "getblockchaininfo":
 		cmd = new(GetBlockChainInfoCmd)
 
@@ -757,8 +760,6 @@ func (cmd *CreateMultisigCmd) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-
-
 // TransactionInput represents the inputs to a transaction. Specifically a
 // transactionsha and output number pair.
 type TransactionInput struct {
@@ -769,22 +770,20 @@ type TransactionInput struct {
 // ValidateOutputsCmd is a type handling custom marshaling and
 // unmarshaling of createrawtransaction JSON RPC commands.
 type ValidateOutputsCmd struct {
-	id      interface{}
-	Inputs  []TransactionInput
+	id     interface{}
+	Inputs []TransactionInput
 }
 
 // Enforce that ValidateOutputsCmd satisifies the Cmd interface.
 var _ Cmd = &ValidateOutputsCmd{}
 
-
 // NewValidateOutputsCmd creates a new ValidateOutputsCmd.
 func NewValidateOutputsCmd(id interface{}, inputs []TransactionInput) (*ValidateOutputsCmd, error) {
 	return &ValidateOutputsCmd{
-		id:      id,
-		Inputs:  inputs,
+		id:     id,
+		Inputs: inputs,
 	}, nil
 }
-
 
 // Id satisfies the Cmd interface by returning the id of the command.
 func (cmd *ValidateOutputsCmd) Id() interface{} {
@@ -929,12 +928,6 @@ func (cmd *CreateRawTransactionCmd) UnmarshalJSON(b []byte) error {
 	*cmd = *newCmd
 	return nil
 }
-
-
-
-
-
-
 
 // DebugLevelCmd is a type handling custom marshaling and unmarshaling of
 // debuglevel JSON RPC commands.  This command is not a standard Bitcoin
@@ -2071,6 +2064,115 @@ func (cmd *GetBlockCmd) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
+type GetBlockByNumberCmd struct {
+	id        interface{}
+	Height    int
+	Verbose   bool
+	VerboseTx bool
+}
+
+var _ Cmd = &GetBlockByNumberCmd{}
+
+func NewGetBlockByNumberCmd(id interface{}, height int, optArgs ...bool) (*GetBlockByNumberCmd, error) {
+	// default verbose is set to true to match old behavior
+	verbose, verboseTx := true, false
+
+	optArgsLen := len(optArgs)
+	if optArgsLen > 0 {
+		if optArgsLen > 2 {
+			return nil, ErrTooManyOptArgs
+		}
+		verbose = optArgs[0]
+		if optArgsLen > 1 {
+			verboseTx = optArgs[1]
+
+			if !verbose && verboseTx {
+				return nil, ErrInvalidParams
+			}
+		}
+	}
+
+	return &GetBlockByNumberCmd{
+		id:        id,
+		Height:    height,
+		Verbose:   verbose,
+		VerboseTx: verboseTx,
+	}, nil
+}
+
+// Id satisfies the Cmd interface by returning the id of the command.
+func (cmd *GetBlockByNumberCmd) Id() interface{} {
+	return cmd.id
+}
+
+// Method satisfies the Cmd interface by returning the json method.
+func (cmd *GetBlockByNumberCmd) Method() string {
+	return "getblockbynumber"
+}
+
+// MarshalJSON returns the JSON encoding of cmd.  Part of the Cmd interface.
+func (cmd *GetBlockByNumberCmd) MarshalJSON() ([]byte, error) {
+	params := make([]interface{}, 1, 3)
+	params[0] = cmd.Height
+	if !cmd.Verbose {
+		// set optional verbose argument to false
+		params = append(params, false)
+	} else if cmd.VerboseTx {
+		// set optional verbose argument to true
+		params = append(params, true)
+		// set optional verboseTx argument to true
+		params = append(params, true)
+	}
+
+	// Fill and marshal a RawCmd.
+	raw, err := NewRawCmd(cmd.id, cmd.Method(), params)
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(raw)
+
+}
+
+// UnmarshalJSON unmarshals the JSON encoding of cmd into cmd.  Part of
+// the Cmd interface.
+func (cmd *GetBlockByNumberCmd) UnmarshalJSON(b []byte) error {
+	// Unmashal into a RawCmd
+	var r RawCmd
+	if err := json.Unmarshal(b, &r); err != nil {
+		return err
+	}
+
+	var height int
+	if err := json.Unmarshal(r.Params[0], &height); err != nil {
+		return fmt.Errorf("first parameter 'height' must be a int: %v", err)
+	}
+
+	optArgs := make([]bool, 0, 2)
+	if len(r.Params) > 1 {
+		var verbose bool
+		if err := json.Unmarshal(r.Params[1], &verbose); err != nil {
+			return fmt.Errorf("second optional parameter 'verbose' must be a bool: %v", err)
+		}
+		optArgs = append(optArgs, verbose)
+	}
+
+	if len(r.Params) > 2 {
+		var verboseTx bool
+		if err := json.Unmarshal(r.Params[2], &verboseTx); err != nil {
+			return fmt.Errorf("third optional parameter 'verboseTx' must be a bool: %v", err)
+		}
+		optArgs = append(optArgs, verboseTx)
+	}
+
+	newCmd, err := NewGetBlockByNumberCmd(r.Id, height, optArgs...)
+	if err != nil {
+		return err
+	}
+
+	*cmd = *newCmd
+	return nil
+}
+
 // GetBlockChainInfoCmd is a type handling custom marshaling and
 // unmarshaling of getblockchaininfo JSON RPC commands.
 type GetBlockChainInfoCmd struct {
@@ -2690,9 +2792,6 @@ func (cmd *GetStakingInfoCmd) UnmarshalJSON(b []byte) error {
 	*cmd = *newCmd
 	return nil
 }
-
-
-
 
 // GetInfoCmd is a type handling custom marshaling and
 // unmarshaling of getinfo JSON RPC commands.

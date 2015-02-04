@@ -20,7 +20,7 @@ type BlockResult struct {
 	Height        int64         `json:"height"`
 	Version       int32         `json:"version"`
 	MerkleRoot    string        `json:"merkleroot"`
-	Mint 		  float64       `json:"mint"`
+	Mint          float64       `json:"mint"`
 	MoneySupply   float64       `json:"moneysupply"`
 	DigSupply     float64       `json:"digsupply"`
 	StakeSupply   float64       `json:"stakesupply"`
@@ -31,25 +31,25 @@ type BlockResult struct {
 	Nonce         uint32        `json:"nonce"`
 	Bits          string        `json:"bits"`
 	Difficulty    float64       `json:"difficulty"`
-	BlockTrust    string 		`json:"blocktrust"`
-	ChainTrust    string 		`json:"chaintrust"`
-	Flags 		  string 		`json:"flags"`
-	ProofHash     string 		`json:"proofhash"`
-	EntropyBit    int 			`json:"entropybit"`
-	Modifier      string 		`json:"modifier"`
+	BlockTrust    string        `json:"blocktrust"`
+	ChainTrust    string        `json:"chaintrust"`
+	Flags         string        `json:"flags"`
+	ProofHash     string        `json:"proofhash"`
+	EntropyBit    int           `json:"entropybit"`
+	Modifier      string        `json:"modifier"`
 	PreviousHash  string        `json:"previousblockhash"`
 	NextHash      string        `json:"nextblockhash"`
 }
 
 type ValidateOutputs struct {
-    TxId      string `json:"txid"`
-    Vout      uint32 `json:"vout"`
-    Amount      float64 `json:"amount"`
-    Address      string `json:"address"`
-    Height      int64 `json:"height"`
-    Confirmations      int `json:"confirmations"`
-    Status     string `json:"status"`
-    ScriptPubKey string `json:"scriptPubKey"`
+	TxId          string  `json:"txid"`
+	Vout          uint32  `json:"vout"`
+	Amount        float64 `json:"amount"`
+	Address       string  `json:"address"`
+	Height        int64   `json:"height"`
+	Confirmations int     `json:"confirmations"`
+	Status        string  `json:"status"`
+	ScriptPubKey  string  `json:"scriptPubKey"`
 }
 
 // CreateMultiSigResult models the data returned from the createmultisig command.
@@ -326,17 +326,17 @@ type InfoResult struct {
 	ProtocolVersion int32   `json:"protocolversion"`
 	WalletVersion   int32   `json:"walletversion,omitempty"`
 	Balance         float64 `json:"balance,omitempty"`
-	NewMint			float64 `json:"newmint,omitempty"`
-	Stake			float64 `json:"stake,omitempty"`
+	NewMint         float64 `json:"newmint,omitempty"`
+	Stake           float64 `json:"stake,omitempty"`
 	Blocks          int32   `json:"blocks"`
 	TimeOffset      int64   `json:"timeoffset"`
 	MoneySupply     float64 `json:"moneysupply,omitempty"`
-	DigSupply     	float64 `json:"digsupply,omitempty"`
+	DigSupply       float64 `json:"digsupply,omitempty"`
 	StakeSupply     float64 `json:"stakesupply,omitempty"`
 	ActiveSupply    float64 `json:"activesupply,omitempty"`
 	Connections     int32   `json:"connections"`
 	Proxy           string  `json:"proxy"`
-	Difficulty   Difficulty
+	Difficulty      Difficulty
 	TestNet         bool    `json:"testnet"`
 	KeypoolOldest   int64   `json:"keypoololdest,omitempty"`
 	KeypoolSize     int32   `json:"keypoolsize,omitempty"`
@@ -353,17 +353,16 @@ type InfoResultStaking struct {
 	Errors           string  `json:"errors"`
 	CurrentBlockSize int32   `json:"currentblocksize"`
 	CurrentBlockTx   int32   `json:"currentblocktx"`
-	PooledTx 		 int32   `json:"pooledtx"`
-	Difficulty 		 float64 `json:"difficulty"`
-	SearchInterval	 int32   `json:"search-interval"`
-	Weight 		 	 float64 `json:"weight"`
-	NetStakeWeight 	 float64 `json:"netstakeweight"`
-	ExpectedTime 	 int32   `json:"expectedtime"`
+	PooledTx         int32   `json:"pooledtx"`
+	Difficulty       float64 `json:"difficulty"`
+	SearchInterval   int32   `json:"search-interval"`
+	Weight           float64 `json:"weight"`
+	NetStakeWeight   float64 `json:"netstakeweight"`
+	ExpectedTime     int32   `json:"expectedtime"`
 }
 
-
 type Difficulty struct {
-	ProofOfStake     float64 `json:"proof-of-stake"`
+	ProofOfStake float64 `json:"proof-of-stake"`
 }
 
 // ListTransactionsResult models the data from the listtransactions command.
@@ -564,6 +563,13 @@ func ReadResultCmd(cmd string, message []byte) (Reply, error) {
 			if err == nil {
 				result.Result = res
 			}
+		}
+	case "getblockbynumber":
+		// Returns a json object for block data based on block height
+		var res *BlockResult
+		err = json.Unmarshal(objmap["result"], &res)
+		if err == nil {
+			result.Result = res
 		}
 	case "getblockchaininfo":
 		var res *GetBlockChainInfoResult
